@@ -4,7 +4,7 @@
 #define ARG_COUNT  4
 void GET_SERVE_CUSTOEMR_PERIOD_fROM_ARGV(char *[]);
 void GET_NUMBER_SWEETS_TYPES_fROM_ARGV(char *[]);
-
+int check_for_zeros();
 /*
 	Reads and sets the values of SERVE_CUSTOEMR_PERIOD 
 	passed from Initiator

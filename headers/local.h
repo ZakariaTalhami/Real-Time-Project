@@ -39,7 +39,7 @@ void print_state();
 #endif
 
 #ifndef PROB_TH
-#define PROB_TH 70
+#define PROB_TH 60
 #endif
 struct MSG
 {

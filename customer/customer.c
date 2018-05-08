@@ -5,13 +5,16 @@
 #include "local.h"
 struct IC_MSG buf;
 struct CF_MSG buf_CF;
+struct IC_MSG rcv_CF;
 int status[] = {200,404,408};
 int amount[MAX_TYPES] = { 0 };
 int wait_time = 0;
 int seed = 0;
+int pid;
 int main(int argc, char  *argv[])
 {
 	seed =time(NULL);
+	pid = getpid();
 	// CF_MSG - malloc(struct CF_MSG);
 	/*
 		Make sure that the customer got all
@@ -74,17 +77,21 @@ int main(int argc, char  *argv[])
 	*/
 	send_CF_MSG(&buf_CF, 0 , amount);
 
-	while(1);
+	
 	/*
 		Wait for front desk reply
 	*/
-
+		printf("**************************PID %d\n", pid);
+	while(peek_CF(pid) == -1);
 	/*
 		Get front desk reply 
 			//From the private queue
 			//stop the timer
 	*/
-
+	get_CF_RLY(&rcv_CF, pid);
+	printf("Customer Got order handed Back with status (-%d-)\n" , rcv_CF.status);
+	print_IC_MSG(rcv_CF);
+	alarm(0);
 	/*
 		process front desk reply
 	*/

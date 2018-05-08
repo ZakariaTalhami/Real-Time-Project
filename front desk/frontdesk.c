@@ -3,6 +3,7 @@
 #include "../headers/messaging.h"
 #include "local.h"
 struct CF_MSG buf;
+struct IC_MSG snd;
 int main(int argc, char  *argv[])
 {
 	printf("Hello this is a front desk %d\n", argc);
@@ -40,9 +41,11 @@ int main(int argc, char  *argv[])
 		// printf("peek :> %d\n",peek_CF(M_CF) );
 		if(peek_CF(M_CF) != -1){
 			get_CF_MSG(&buf);
-				printf("Front (%d) got message from customer (%d)" ,getpid(),buf.pid);
-				print_CF_MSG(buf);
-			exit(1);
+			printf("Front (%d) got message from customer (%d)" ,getpid(),buf.pid);
+			print_CF_MSG(buf);
+			send_CF_RLY(&snd,200,5,buf.pid);
+			// exit(1);
+			// while(1);
 		}
 	}
 	return 0;
@@ -67,4 +70,19 @@ void set_ctrl_c(){
 }
 void free_resources(){
 	free_IC();
+}
+
+int check_for_zeros(){
+	int count =0;
+	int ret = 0;
+	for (int i = 0; i < MAX_TYPES; ++i)
+	{
+		count += buf.amount[i];
+	}
+	if(count == 0){
+		ret = 1;
+	}
+
+	return ret;
+
 }
