@@ -1,0 +1,8 @@
+
+#include "local.h"
+
+int main(int argc, char const *argv[])
+{
+	printf("How are u ?\n");
+	return 0;
+}
