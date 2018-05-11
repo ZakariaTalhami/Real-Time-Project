@@ -4,8 +4,11 @@
 #include "local.h"
 struct CF_MSG buf;
 struct IC_MSG snd;
+int pid;
+int temp_pid = 0;
 int main(int argc, char  *argv[])
 {
+	pid = getpid();
 	printf("Hello this is a front desk %d\n", argc);
 	if (argc != ARG_COUNT)
 	{
@@ -19,31 +22,58 @@ int main(int argc, char  *argv[])
 	*/
 	set_ctrl_c();
 
-	/*For debugging purposes*/
-	// print_argv(argc , argv);
-
 	/* Get SERVE_CUSTOEMR_PERIOD from the argv passed*/
 	GET_SERVE_CUSTOEMR_PERIOD_fROM_ARGV(argv);
 	GET_NUMBER_SWEETS_TYPES_fROM_ARGV(argv);
-	
-	// printf("GET_NUMBER_SWEETS_TYPES_fROM_ARGV  %d\n", NUMBER_SWEETS_TYPES);
 
-	// OPEN_IC_QID();
-	// printf("QID = %d \n", IC_QID );
-	// while(peek(M_CI) == -1);
-	// printf("READing...\n");
-	// get_IC_MSG(&buf);
-	// printf("Got m: %ld , PID :%d  status:%d  \n" ,buf.mtype ,buf.pid , buf.status);
+	/*
+		Open Messge Queue to talk to Customers
+	*/
 	OPEN_CF_QID();
 	printf("Front Desk Opens a Message queue with QID_C = %d \n", CF_QID );
-	// exit(1);
+	OPEN_FB_QID();
+	printf("Front Desk Opens a Message queue with FB_QID = %d \n", FB_QID );
+	/*Remove later*/
+		// buf.pid = 25;
+		// buf.status = 200;
+		// for (int i = 0; i < NUMBER_SWEETS_TYPES; ++i)
+		// {
+		// 	buf.amount[i] = 1;
+		// }
+		// print_CF_MSG(buf);
+	/*
+		Loop
+	*/
 	while(1){
-		// printf("peek :> %d\n",peek_CF(M_CF) );
+		
+	// 		Check see if there is a customer order waiting
+		
 		if(peek_CF(M_CF) != -1){
+			/* Read the order from the customer*/
 			get_CF_MSG(&buf);
-			printf("Front (%d) got message from customer (%d)" ,getpid(),buf.pid);
+			printf("Front (%d) got message from customer (%d)\n" ,getpid(),buf.pid);
+
+			/* Save the PID of the Customer */
+			temp_pid = buf.pid;
+			/* Change the PID of the message to the front desk PID */
+			buf.pid = pid;
+			/* Forward the order to the back desks */
+			forward_CF_msg(&buf, 200);
+			/* Wait for the back desk Reply */
+			printf("Front is waiting\n");
+			while(peek_FB((long) pid) == -1);
+			get_FB_RLY(&buf, pid);
+			/* Process the back desk reply */
+				//get status
+			printf("Got reply with:>\n");
 			print_CF_MSG(buf);
-			send_CF_RLY(&snd,200,5,buf.pid);
+				snd.status = compare_order_response(buf);
+				//Get the amount received
+				snd.amount = get_amount(buf);
+				printf("Front<-back: Status (%d) (%d)\n", snd.status , snd.amount );
+			/* Construct the Front desk reply to the Customer */
+			// print_CF_MSG(buf);
+			send_CF_RLY(&snd,snd.status,snd.amount,temp_pid);
 			// exit(1);
 			// while(1);
 		}
@@ -84,5 +114,27 @@ int check_for_zeros(){
 	}
 
 	return ret;
+}
 
+int compare_order_response(struct CF_MSG msg){
+	int temp=200;
+	for (int i = 0; i < NUMBER_SWEETS_TYPES; ++i)
+	{
+		if (msg.amount[i] != msg.received[i])
+		{
+			temp = 404;
+			break;
+		}
+	}
+	return temp;
+}
+
+int get_amount(struct CF_MSG msg){
+	int temp=0;
+	for (int i = 0; i < NUMBER_SWEETS_TYPES; ++i)
+	{
+		temp+=msg.received[i];
+	}
+
+	return temp;
 }

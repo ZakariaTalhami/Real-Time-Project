@@ -100,10 +100,12 @@ int main(int argc, char  *argv[])
 		Send Response of status to Initiator
 	*/
 
+	if(IC_QID != -1){
+		send_IC_MSG(&rcv_CF , rcv_CF.status , rcv_CF.amount);
+	}
 
 
-
-
+	// free_resources();
 
 
 
@@ -119,7 +121,7 @@ int main(int argc, char  *argv[])
 	// send_IC_MSG(&buf , status[getpid()%3] , getpid()%10);
 	// printf("Sent\n");
 	// remove_queue(IC_QID);
-	while(1);
+	// while(1);
 	return 0;
 }
 
@@ -133,7 +135,7 @@ int get_customer_wait_time(){
 
 void catch_alarm(int signum){
 (void) signal(SIGALRM , catch_alarm);
-	int status = 404;
+	int status = 408;
 	struct IC_MSG reply;
 	if(IC_QID != -1){
 		send_IC_MSG(&reply , status , 3);

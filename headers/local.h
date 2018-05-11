@@ -25,6 +25,7 @@ void free_resources();
 void set_ctrl_c();
 void catch_ctrl_c();
 void print_state();
+void init_back_desk();
 
 #ifndef BUF_SIZE
 #define BUF_SIZE 80

@@ -67,7 +67,8 @@ int peek_message(int qid , long type){
 int remove_queue(int qid){
 	int res;
 	if((res  =  msgctl(qid , IPC_RMID , NULL)) == -1){
-		printf("Error: unable to remove Queue\n");
+		// printf("Error: unable to remove Queue\n");
+		perror("remove_queue");
 		return errno;
 	}
 	return res;

@@ -5,6 +5,8 @@
 void GET_SERVE_CUSTOEMR_PERIOD_fROM_ARGV(char *[]);
 void GET_NUMBER_SWEETS_TYPES_fROM_ARGV(char *[]);
 int check_for_zeros();
+int get_amount(struct CF_MSG );
+int compare_order_response(struct CF_MSG );
 /*
 	Reads and sets the values of SERVE_CUSTOEMR_PERIOD 
 	passed from Initiator

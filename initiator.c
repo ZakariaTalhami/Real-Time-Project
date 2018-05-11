@@ -6,6 +6,7 @@
 
 void process_msg( struct IC_MSG);
 int * f_pid;
+int * b_pid;
 struct IC_MSG buf;
 int createCustomerFlag = 0;
 
@@ -57,7 +58,13 @@ int main(int argc, char  *argv[])
 		Load up the front desk processes
 			/pass the SERVE_CUSTOEMR_PERIOD
 	*/
-	// todo: Load the back desk program
+	init_back_desk();
+	printf("The Back Desk Employees have arrived and taken their post\n");
+	// while(1);
+	/*
+		Load up the front desk processes
+			/pass the SERVE_CUSTOEMR_PERIOD
+	*/
 
 	/*Open message Queue for all customers*/
 	OPEN_IC_QID();
@@ -132,6 +139,45 @@ void init_front_desk(){
 		}
 		else{
 			execv("/home/zakaria/Documents/RealTime/front desk/frontdesk" , args);
+			perror("execv");
+			exit(1);
+		}
+	}
+}
+
+
+
+
+/*
+	Creates the Back desk processes
+		creates depending on the Configuration 
+			"NUMBER_BACK_DESK"
+		the code forks and exec the front programe
+		passes the "NUMBER_SWEETS_TYPES" configuration
+*/
+void init_back_desk(){
+	int temp_pid;
+	//set the arguements to be passed to front desk
+	char * args[5];
+	f_pid = malloc(NUMBER_BACK_DESK*sizeof(int));
+	args[0] = "./frontdesk";
+	args[1] = malloc(sizeof(char)*4);
+	args[2] = malloc(sizeof(char)*4);
+	args[3] = malloc(sizeof(char)*4);
+	sprintf(args[1] ,"%d" , AVAILABLE_SWEETS_QUANTITIES_RANGE[0]);
+	sprintf(args[2],"%d" , AVAILABLE_SWEETS_QUANTITIES_RANGE[1]);
+	sprintf(args[3],"%d" , NUMBER_SWEETS_TYPES);
+	args[4] = NULL;
+	for (int i = 0; i < NUMBER_BACK_DESK; ++i)
+	{
+		// printf(" i = %d\n", i );
+		if ((temp_pid = fork()))
+		{
+			// printf("PID = %d\n", temp_pid);
+			f_pid[i] = temp_pid;
+		}
+		else{
+			execv("/home/zakaria/Documents/RealTime/back desk/backdesk" , args);
 			perror("execv");
 			exit(1);
 		}
